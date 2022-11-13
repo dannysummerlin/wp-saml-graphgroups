@@ -13,7 +13,8 @@
  */
 if(is_plugin_active('wp-saml-auth/wp-saml-auth.php')) {
 	class WP_SAML_GraphGroups {
-		private $tenantId
+		private static $tenantId;
+		private static $instance;
 
 		public static function get_option( $option_name ) { return apply_filters( 'wp_saml_graphgroups_option', null, $option_name ); }
 		private function downcaseArray(&$a, $i) { $a = strtolower($a); }
@@ -177,6 +178,22 @@ if(is_plugin_active('wp-saml-auth/wp-saml-auth.php')) {
 			$wpSAMLSettings = new WP_SAML_Auth_Settings;
 			$wpSAMLOptions  = get_option( $wpSAMLSettings->get_option_name() );
 			self::$tenantId = preg_match('[\w-]{36}', $wpSAMLOptions['sp_entityId'])[0];
+		}
+		public function action_init() {
+			// add_action( 'login_head', array( $this, 'action_login_head' ) );
+			// add_action( 'login_message', array( $this, 'action_login_message' ) );
+			// add_action( 'wp_logout', array( $this, 'action_wp_logout' ) );
+			// add_filter( 'login_body_class', array( $this, 'filter_login_body_class' ) );
+			// add_filter( 'authenticate', array( $this, 'filter_authenticate' ), 21, 3 ); // after wp_authenticate_username_password runs.
+			// add_action( 'admin_notices', array( $this, 'action_admin_notices' ) );
+		}
+		public static function get_instance() {
+			if ( ! isset( self::$instance ) ) {
+				self::$instance = new WP_SAML_GraphGroups;
+				add_action( 'init', array( self::$instance, 'action_init' ) );
+				// add_action( 'plugins_loaded', array( self::$instance, 'load_textdomain' ) );
+			}
+			return self::$instance;
 		}
 	}
 }

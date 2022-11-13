@@ -13,15 +13,6 @@
  */
 if(is_plugin_active('wp-saml-auth/wp-saml-auth.php')) {
 class WP_SAML_GraphGroups {
-	// get_domain sett
-	// add_filter( 'wp_saml_auth_pre_authentication', function( $ret, $attributes ) {
-	// 	$username = $attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'][0];
-	// 	if ( !stristr($username, 'jstart.org') ) {
-	// 		return new WP_Error( 'unauthorized-domain', "Please make sure to login with your Jumpstart account. (currently using $username)" );
-	// 	}
-	// 	return $ret;
-	// }, 10, 2 );
-
 	private function downcaseArray(&$a, $i) { $a = strtolower($a); }
 	public static function get_option( $option_name ) {
 		return apply_filters( 'wp_saml_graphgroups_option', null, $option_name );
@@ -168,7 +159,6 @@ class WP_SAML_GraphGroups {
 			wp_die();
 		}
 	};
-
 	function ssoRedirect( $url, $request, $user ) {
 		if(isset($_REQUEST) && isset($_REQUEST['RelayState']) && !stristr($_REQUEST['RelayState'], 'login.php')) {
 			wp_redirect($_REQUEST['RelayState']);

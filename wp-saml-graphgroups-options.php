@@ -4,7 +4,7 @@ class WP_SAML_Auth_GraphGroups_Options {
 	public static function get_instance() {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new WP_SAML_Auth_GraphGroups_Options;
-			add_action( 'init', array( self::$instance, 'action_init_early' ), 9 );
+			add_action('init', array( self::$instance, 'action_init_early' ), 9);
 		}
 		return self::$instance;
 	}
@@ -13,12 +13,7 @@ class WP_SAML_Auth_GraphGroups_Options {
 			return;
 		}
 		if ( self::do_required_settings_have_values() ) {
-			add_filter(
-				'wp_saml_auth_option',
-				array( self::$instance, 'filter_option' ),
-				9,
-				2
-			);
+			add_filter('wp_saml_auth_option', array( self::$instance, 'filter_option' ), 9, 2);
 		}
 	}
 	public static function get_option_name() {
@@ -32,12 +27,7 @@ class WP_SAML_Auth_GraphGroups_Options {
 			add_filter( 'wp_saml_auth_option', 'wpsa_filter_option', 0, 2 );
 		}
 		if ( $filter2 ) {
-			add_filter(
-				'wp_saml_auth_option',
-				array( self::$instance, 'filter_option' ),
-				9,
-				2
-			);
+			add_filter('wp_saml_auth_option', array( self::$instance, 'filter_option' ), 9, 2);
 		}
 		return $has_filter;
 	}
@@ -67,21 +57,13 @@ class WP_SAML_Auth_GraphGroups_Options {
 			'internal_config' => array(
 				'strict'  => true,
 				'debug'   => defined( 'WP_DEBUG' ) && WP_DEBUG ? true : false,
-				'baseurl' => $options['baseurl'],
-				'idp'     => array(
-					'entityId'                 => $options['idp_entityId'],
-					'singleSignOnService'      => array(
-						'url'     => $options['idp_singleSignOnService_url'],
-						'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-					),
-					'singleLogoutService'      => array(
-						'url'     => $options['idp_singleLogoutService_url'],
-						'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-					),
-				),
+				'client_id' => $options['client_id'],
+				'client_secret' => $options['client_secret'],
+				'scope' => $options['scope'],
+				'grant_type' => $options['grant_type'],
+				'custom_user_fields' => $options['custom_user_fields'],
 			),
 		);
-
 		$remaining_settings = array();
 		foreach ( $remaining_settings as $setting ) {
 			$settings[ $setting ] = $options[ $setting ];

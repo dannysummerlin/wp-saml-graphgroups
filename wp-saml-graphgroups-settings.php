@@ -136,36 +136,6 @@ class WP_SAML_Auth_GraphGroups_Settings {
 					$input[ $uid ] = sanitize_text_field( $value );
 				}
 			}
-			// url fields.
-			if ( 'url' === $field['type'] ) {
-				if ( ! empty( $value ) ) {
-					if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
-						$input[ $uid ] = esc_url_raw( $value, array( 'http', 'https' ) );
-					} else {
-						$input['connection_type'] = null;
-						$input[ $uid ]            = null;
-						add_settings_error(
-							WP_SAML_Auth_GraphGroups_Options::get_option_name(),
-							$uid,
-							// translators: Field label.
-							sprintf( __( '%s is not a valid URL.', 'wp-saml-auth' ), trim( $section . ' ' . $field['label'] ) )
-						);
-					}
-				}
-			}
-			if ( 'x509cert' === $field['uid'] ) {
-				if ( ! empty( $value ) ) {
-					$value = str_replace( 'ABSPATH', ABSPATH, $value );
-					if ( ! file_exists( $value ) ) {
-						add_settings_error(
-							WP_SAML_Auth_GraphGroups_Options::get_option_name(),
-							$uid,
-							// translators: Field label.
-							sprintf( __( '%s is not a valid certificate path.', 'wp-saml-auth' ), trim( $section . ' ' . $field['label'] ) )
-						);
-					}
-				}
-			}
 		}
 		return $input;
 	}
@@ -190,10 +160,7 @@ class WP_SAML_Auth_GraphGroups_Settings {
 	}
 	public static function setup_sections() {
 		self::$sections = array(
-			'general'    => '',
-			'sp'         => __( 'Service Provider Settings', 'wp-saml-auth' ),
-			'idp'        => __( 'Identity Provider Settings', 'wp-saml-auth' ),
-			'attributes' => __( 'Attribute Mappings', 'wp-saml-auth' ),
+			'graph'         => __( 'MS Graph Groups Settings', 'wp-saml-auth' ),
 		);
 		foreach ( self::$sections as $id => $title ) {
 			add_settings_section( $id, $title, null, WP_SAML_Auth_GraphGroups_Options::get_option_name() );
@@ -201,61 +168,49 @@ class WP_SAML_Auth_GraphGroups_Settings {
 	}
 	public static function init_fields() {
 		self::$fields = array(
-			// general section.
 			array(
-				'section'     => 'general',
-				'uid'         => 'auto_provision',
-				'label'       => __( 'Auto Provision', 'wp-saml-auth' ),
-				'type'        => 'checkbox',
-				'description' => __( 'If checked, create a new WordPress user upon login. <br>If unchecked, WordPress user will already need to exist in order to log in.', 'wp-saml-auth' ),
-				'default'     => 'true',
-			),
-			// sp section.
-			array(
-				'section'     => 'sp',
-				'uid'         => 'sp_entityId',
-				'label'       => __( 'Entity Id (Required)', 'wp-saml-auth' ),
-				'type'        => 'text',
-				'choices'     => false,
-				'description' => __( 'SP (WordPress) entity identifier.', 'wp-saml-auth' ),
-				'default'     => 'urn:' . parse_url( home_url(), PHP_URL_HOST ),
-				'required'    => true,
-			),
-			// attributes section.
-			array(
-				'section' => 'attributes',
-				'uid'     => 'user_login_attribute',
-				'label'   => 'user_login',
+				'section' => 'graph',
+				'uid'     => 'client_id_attribute',
 				'type'    => 'text',
-				'default' => 'uid',
+				'label'   => __( 'oAuth Client Id', 'wp-saml-auth' ),
+				'description' => __( 'oAuth Client.', 'wp-saml-auth' ),
+				'default' => 'client_id',
 			),
 			array(
-				'section' => 'attributes',
-				'uid'     => 'user_email_attribute',
-				'label'   => 'user_email',
+				'section' => 'graph',
+				'uid'     => 'client_secret_attribute',
+				'label'   => 'client_secret',
 				'type'    => 'text',
-				'default' => 'email',
+				'label'   => __( 'oAuth Client Id', 'wp-saml-auth' ),
+				'description' => __( 'oAuth Client.', 'wp-saml-auth' ),
+				'default' => 'client_secret',
 			),
 			array(
-				'section' => 'attributes',
-				'uid'     => 'display_name_attribute',
-				'label'   => 'display_name',
+				'section' => 'graph',
+				'uid'     => 'scope_attribute',
+				'label'   => 'scope',
 				'type'    => 'text',
-				'default' => 'display_name',
+				'label'   => __( 'Scope', 'wp-saml-auth' ),
+				'description' => __( 'ex. https://graph.microsoft.com/.default', 'wp-saml-auth' ),
+				'default' => 'https://graph.microsoft.com/.default',
 			),
 			array(
-				'section' => 'attributes',
-				'uid'     => 'first_name_attribute',
-				'label'   => 'first_name',
+				'section' => 'graph',
+				'uid'     => 'grant_type_attribute',
+				'label'   => 'grant_type',
 				'type'    => 'text',
-				'default' => 'first_name',
+				'label'   => __( 'Grant Type', 'wp-saml-auth' ),
+				'description' => __( 'ex. client_credentials', 'wp-saml-auth' ),
+				'default' => 'client_credentials',
 			),
 			array(
-				'section' => 'attributes',
-				'uid'     => 'last_name_attribute',
-				'label'   => 'last_name',
+				'section' => 'graph',
+				'uid'     => 'custom_user_fields_attribute',
+				'label'   => 'custom_user_fields',
 				'type'    => 'text',
-				'default' => 'last_name',
+				'label'   => __( 'Custom User Fields', 'wp-saml-auth' ),
+				'description' => __( 'Enter one comma-separated pair per line like fieldName,Label', 'wp-saml-auth' ),
+				'default' => 'fieldName, Field Label',
 			),
 		);
 	}

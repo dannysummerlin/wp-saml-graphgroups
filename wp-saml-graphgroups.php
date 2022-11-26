@@ -44,12 +44,11 @@ if(is_plugin_active('wp-saml-auth/wp-saml-auth.php')) {
 			try {
 			// Get Azure Token for MS Graph
 				if ( false === ( $azureToken = get_transient( 'azureToken' ) ) ) {
-					$credentials = parse_ini_file('creds.ini', true);
-					$tokenString = curl_post('https://login.microsoftonline.com/'.$this->tenantID.'/oauth2/v2.0/token', http_build_query(array(
-						'client_id' => $credentials['MS_Graph']['client_id'],
-						'client_secret' => $credentials['MS_Graph']['client_secret'],
-						'scope' => 'https://graph.microsoft.com/.default',
-						'grant_type' => 'client_credentials'
+					$tokenString = curl_post('https://login.microsoftonline.com/'.$this->tenantId.'/oauth2/v2.0/token', http_build_query(array(
+						'client_id' => get_option('client_id'),
+						'client_secret' => get_option('client_secret'),
+						'scope' => get_option('scope'), # https://graph.microsoft.com/.default
+						'grant_type' => get_option('grant_type') # client_credentials
 					)));
 					if($tokenString !== '') {
 						$tokenResponse = json_decode($tokenString);
@@ -171,7 +170,15 @@ if(is_plugin_active('wp-saml-auth/wp-saml-auth.php')) {
 		// adding custom user profile fields
 		function getCustomUserFields( $methods, $user ) {
 			// has to be identical to the attribute coming over from Office 365 in order to sync
-			$methods['salesforce_id'] = 'Salesforce Individual ID'; // set to Employee ID or Employee Number (if ID is blank) in the app registration
+			try {
+				$customUserFields = get_option('custom_user_fields');
+				$csv = array_map('str_getcsv', explode("\n",$customUserFields));
+				foreach ($customUserFields as $field) {
+					$methods[trim($field[0])] = trim($field[1]);
+				}
+			} catch {
+				// output debug
+			}
 			return $methods;
 		} add_filter( 'user_contactmethods', 'getCustomUserFields', 10, 2 );
 		function init() {
@@ -191,7 +198,6 @@ if(is_plugin_active('wp-saml-auth/wp-saml-auth.php')) {
 			if ( ! isset( self::$instance ) ) {
 				self::$instance = new WP_SAML_GraphGroups;
 				add_action( 'init', array( self::$instance, 'action_init' ) );
-				// add_action( 'plugins_loaded', array( self::$instance, 'load_textdomain' ) );
 			}
 			return self::$instance;
 		}
